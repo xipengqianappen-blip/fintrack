@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# 数据与备份（本地运行产生）
+data/
+backups/
+reports/
+
+# 环境
+.env
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# macOS / Windows
+.DS_Store
+Thumbs.db
