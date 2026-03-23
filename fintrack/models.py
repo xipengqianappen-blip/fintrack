@@ -98,9 +98,7 @@ def add_transaction(account_name, category_name, amount, description="", txn_dat
     if txn_date is None:
         txn_date = datetime.now().strftime("%Y-%m-%d")
 
-    # BUG 1: 支出应该用 -amount，但这里对 income/expense 都用了 +amount
-    # 导致支出也会增加余额
-    delta = amount  # ← 应为: delta = amount if category["kind"] == "income" else -amount
+    delta = amount if category["kind"] == "income" else -amount
 
     conn = get_connection()
     try:
@@ -160,10 +158,7 @@ def delete_transaction(txn_id):
         return
 
     row = dict(row)
-    # BUG 2: 回滚时 delta 方向写反了，应该是撤销原来的操作
-    # 若原交易是收入(+amount)，回滚应 -amount；反之亦然
-    # 但这里对两种情况都用了同一个方向，导致回滚使余额雪上加霜
-    delta = row["amount"]  # ← 应为: delta = -row["amount"] if row["kind"]=="income" else row["amount"]
+    delta = -row["amount"] if row["kind"] == "income" else row["amount"]
 
     conn.execute("DELETE FROM transactions WHERE id = ?", (txn_id,))
     update_account_balance(row["account_id"], delta, conn=conn)
