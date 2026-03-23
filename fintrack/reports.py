@@ -100,10 +100,8 @@ def export_csv(month=None):
     """, (month,)).fetchall()
     conn.close()
 
-    # BUG 4: CSV 文件以默认编码打开，在 Windows 上中文会乱码
-    # 应加 encoding="utf-8-sig" 以便 Excel 正确识别
     filename = os.path.join(REPORT_DIR, f"report_{month}.csv")
-    with open(filename, "w", newline="") as f:
+    with open(filename, "w", newline="", encoding="utf-8-sig") as f:
         writer = csv.DictWriter(f, fieldnames=["id", "account", "category", "kind", "amount", "description", "txn_date"])
         writer.writeheader()
         for r in rows:

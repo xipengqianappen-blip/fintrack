@@ -60,9 +60,7 @@ def check_budget(month=None):
     print("─" * 52)
     for r in rows:
         r = dict(r)
-        # BUG 3: 使用率计算时 spent 和 limit_amount 位置写反
-        # 正确应为 r["spent"] / r["limit_amount"] * 100
-        usage = r["limit_amount"] / r["spent"] * 100 if r["spent"] > 0 else 0.0
+        usage = r["spent"] / r["limit_amount"] * 100 if r["limit_amount"] > 0 else 0.0
         flag = "🔴" if usage >= 100 else ("🟡" if usage >= 80 else "🟢")
         print(f"  {flag} {r['category']:<9} {r['spent']:>10.2f} {r['limit_amount']:>10.2f} {usage:>7.1f}%")
     print("─" * 52)

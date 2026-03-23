@@ -23,22 +23,32 @@ def import_from_csv(filepath):
 
     success, failed = 0, 0
 
-    # BUG 6: 未指定编码，若 CSV 是 UTF-8-BOM 或 GBK 会读取乱码或报错
-    # 应加 encoding="utf-8-sig" 或让用户指定编码
-    with open(filepath, newline="") as f:
-        reader = csv.DictReader(f)
-        for i, row in enumerate(reader, start=2):  # 从第 2 行开始（第 1 行是表头）
-            try:
-                account  = row["account"].strip()
-                category = row["category"].strip()
-                amount   = float(row["amount"].strip())
-                desc     = row.get("description", "").strip()
-                date     = row.get("date", "").strip() or None
-                add_transaction(account, category, amount, desc, date)
-                success += 1
-            except Exception as e:
-                print(f"⚠️  第 {i} 行导入失败: {e}")
-                failed += 1
+    # 尝试多种编码读取文件，优先支持 UTF-8-BOM 和 GBK（Windows 常用）
+    try:
+        with open(filepath, newline="", encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+    except UnicodeDecodeError:
+        try:
+            with open(filepath, newline="", encoding="gbk") as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+        except UnicodeDecodeError:
+            print(f"❌ 文件编码不支持，请转换为 UTF-8 或 GBK 编码后重试")
+            return
+    
+    for i, row in enumerate(rows, start=2):  # 从第 2 行开始（第 1 行是表头）
+        try:
+            account  = row["account"].strip()
+            category = row["category"].strip()
+            amount   = float(row["amount"].strip())
+            desc     = row.get("description", "").strip()
+            date     = row.get("date", "").strip() or None
+            add_transaction(account, category, amount, desc, date)
+            success += 1
+        except Exception as e:
+            print(f"⚠️  第 {i} 行导入失败: {e}")
+            failed += 1
 
     print(f"\n📥 导入完成 — 成功: {success} 条，失败: {failed} 条。")
 

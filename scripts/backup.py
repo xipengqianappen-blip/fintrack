@@ -10,9 +10,7 @@ from datetime import datetime, timedelta
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "fintrack.db")
 
-# BUG 5: 字符串路径拼接，在 Windows 上斜杠方向可能出错
-# 应改为 os.path.join(os.path.dirname(__file__), "..", "backups")
-BACKUP_DIR = os.path.dirname(__file__) + "/../backups"
+BACKUP_DIR = os.path.join(os.path.dirname(__file__), "..", "backups")
 
 
 def backup():
